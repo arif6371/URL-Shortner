@@ -18,7 +18,7 @@ const AppLayout = () => {
   </span>
   
         <br />
-        2024 &copy; Design By AK,s inc. All rights reserved💀
+        2024 &copy; Design By AK,s inc. All rights reserved🧿
       </div>
     </div>
   );
