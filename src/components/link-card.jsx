@@ -1,12 +1,15 @@
 /* eslint-disable react/prop-types */
-import {Copy, Download, LinkIcon, Trash} from "lucide-react";
-import {Link} from "react-router-dom";
-import {Button} from "./ui/button";
+import { Copy, Download, LinkIcon, Trash } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
 import useFetch from "@/hooks/use-fetch";
-import {deleteUrl} from "@/db/apiUrls";
-import {BeatLoader} from "react-spinners";
+import { deleteUrl } from "@/db/apiUrls";
+import { BeatLoader } from "react-spinners";
+import { useState } from "react";
 
-const LinkCard = ({url = [], fetchUrls}) => {
+const LinkCard = ({ url = [], fetchUrls }) => {
+  const [copied, setCopied] = useState(false); // Initially set to false
+
   const downloadImage = () => {
     const imageUrl = url?.qr;
     const fileName = url?.title; // Desired file name for the downloaded image
@@ -26,7 +29,13 @@ const LinkCard = ({url = [], fetchUrls}) => {
     document.body.removeChild(anchor);
   };
 
-  const {loading: loadingDelete, fn: fnDelete} = useFetch(deleteUrl, url.id);
+  const { loading: loadingDelete, fn: fnDelete } = useFetch(deleteUrl, url.id);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(`https://trimrr.in/${url?.custom_url ? url?.custom_url : url?.short_url}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000); // Reset to false after 3 seconds
+  };
 
   return (
     <div className="flex flex-col md:flex-row gap-5 border p-4 bg-gray-900 rounded-lg">
@@ -50,13 +59,8 @@ const LinkCard = ({url = [], fetchUrls}) => {
           {new Date(url?.created_at).toLocaleString()}
         </span>
       </Link>
-      <div className="flex gap-2">
-        <Button
-          variant="ghost"
-          onClick={() =>
-            navigator.clipboard.writeText(`https://trimrr.in/${url?.short_url}`)
-          }
-        >
+      <div className="flex gap-2 items-center">
+        <Button variant="ghost" onClick={handleCopy}>
           <Copy />
         </Button>
         <Button variant="ghost" onClick={downloadImage}>
@@ -69,9 +73,11 @@ const LinkCard = ({url = [], fetchUrls}) => {
         >
           {loadingDelete ? <BeatLoader size={5} color="white" /> : <Trash />}
         </Button>
+        {copied && <span className="text-green-500 z-50">Copied!</span>} {/* Added z-50 for visibility */}
       </div>
     </div>
   );
 };
 
 export default LinkCard;
+
